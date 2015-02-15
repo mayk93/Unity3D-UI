@@ -3,10 +3,7 @@ using System.Collections;
 
 [System.Serializable]
 public class SeceneLoader : MonoBehaviour {
-
-	public float lastTimePlayed = 0f;
-	public float currentTime = 0f;
-
+	
 	// Use this for initialization
 	void Start () {
 	
@@ -17,7 +14,7 @@ public class SeceneLoader : MonoBehaviour {
 	
 	}
 
-	void LoadLevel ()
+	public void LoadLevel ()
 	{
 		try
 		{
@@ -31,5 +28,6 @@ public class SeceneLoader : MonoBehaviour {
 
 	void LoadSavedGame ()
 	{
+		Application.LoadLevel("NewGame");
 	}
 }
