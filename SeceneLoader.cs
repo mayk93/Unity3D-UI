@@ -30,4 +30,9 @@ public class SeceneLoader : MonoBehaviour {
 	{
 		Application.LoadLevel("NewGame");
 	}
+
+	public void goToMainMenu()
+	{
+		Application.LoadLevel("1");
+	}
 }

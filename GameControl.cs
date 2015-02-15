@@ -5,6 +5,10 @@ public class GameControl : MonoBehaviour {
 
 	public static GameControl control;
 
+	public AudioClip[] feedSounds;
+	public AudioClip[] happySounds;
+	public Sprite[] spritesArray;
+
 	public float health = 0f;
 	public float happiness = 0f;
 
@@ -20,10 +24,13 @@ public class GameControl : MonoBehaviour {
 	float recoverHealth = 0.5f;
 	float recoverHappy = 0.7f;
 
-	float foodDecay = 0.1f;
+	float foodDecay = 0.01f;
 	float happyDecay = 0.02f;
 
 	GameObject critter;
+
+	bool canFeed = true;
+	bool canHappy = true;
 
 	// Use this for initialization
 	void Awake () {
@@ -47,35 +54,42 @@ public class GameControl : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		
+	void Update () 
+	{
+		try
+		{
+			if( this.health <= minHealth )
+			{
+				critter.GetComponent<SpriteRenderer>().color = Color.red;
+			}
+			
+			if( this.happiness <= minHappy )
+			{
+				critter.GetComponent<SpriteRenderer>().color = Color.blue;
+			}
+			
+			if( this.health >= recoverHealth )
+			{
+				critter.GetComponent<SpriteRenderer>().color = Color.white;
+			}
+			
+			if( this.happiness >= recoverHappy )
+			{
+				critter.GetComponent<SpriteRenderer>().color = Color.white;
+			}
+
+			if( this.health <= 0 | this.happiness <= 0 )
+			{
+				Application.LoadLevel("GameOver");
+			}
+		}
+		catch{}
 	}
 
 	void changeStats()
 	{
 		this.health = this.health - foodDecay;
 		this.happiness = this.happiness - happyDecay;
-
-		if( this.health <= minHealth )
-		{
-			print (health);
-			critter.GetComponent<SpriteRenderer>().color = Color.red;
-		}
-
-		if( this.happiness <= minHappy )
-		{
-			critter.GetComponent<SpriteRenderer>().color = Color.blue;
-		}
-
-		if( this.health >= recoverHealth )
-		{
-			critter.GetComponent<SpriteRenderer>().color = Color.white;
-		}
-		
-		if( this.happiness >= recoverHappy )
-		{
-			critter.GetComponent<SpriteRenderer>().color = Color.white;
-		}
 	}
 
 	/* For debugging */
@@ -87,27 +101,59 @@ public class GameControl : MonoBehaviour {
 	}
 	*/
 
+	IEnumerator waitForHealth()
+	{
+		GameObject critter = GameObject.FindGameObjectWithTag("Player");
+		critter.GetComponent<SpriteRenderer> ().sprite = spritesArray [Random.Range (0, spritesArray.Length - 1)];
+		yield return new WaitForSeconds(3);
+		canFeed = true;
+	}
+	
+	IEnumerator waitForHappy()
+	{
+		GameObject critter = GameObject.FindGameObjectWithTag("Player");
+		critter.GetComponent<SpriteRenderer>().sprite = spritesArray[Random.Range(0,spritesArray.Length-1)];
+		yield return new WaitForSeconds(3);
+		canHappy = true;
+	}
+
 	public void addHealth ()
 	{
-		if(health + foodAmmount >= 1)
+		if(canFeed == true)
 		{
-			health = 1;
-		}
-		else
-		{
-			health = health + foodAmmount;
+			audio.PlayOneShot(feedSounds[Random.Range(0,feedSounds.Length-1)]);
+			
+			if(health + foodAmmount >= 1)
+			{
+				health = 1;
+			}
+			else
+			{
+				health = health + foodAmmount;
+			}
+			
+			canFeed = false;
+			StartCoroutine(waitForHealth());
 		}
 	}
 
 	public void addHappiness ()
 	{
-		if(happiness + playAmmount >= 1)
+		if(canHappy == true)
 		{
-			happiness = 1;
-		}
-		else
-		{
-			happiness = happiness + playAmmount;
+			audio.PlayOneShot(happySounds[Random.Range(0,feedSounds.Length-1)]);
+
+			if(happiness + playAmmount >= 1)
+			{
+				happiness = 1;
+			}
+			else
+			{
+				happiness = happiness + playAmmount;
+			}
+
+			canHappy = false;
+			StartCoroutine(waitForHappy());
 		}
 	}
 }
